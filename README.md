@@ -18,7 +18,7 @@ plunja.js file.
 Start by creating a template registry which you'll then use to locate and
 render your templates.
 
-```javascript
+```html
 <script>
   $(document).ready(
     function() {
@@ -31,7 +31,7 @@ render your templates.
 If you want to use Plunja.js without jQuery, or you have a better method for
 locating templates, you'll need to define your own locator, like so:
 
-```javascript
+```html
 <script>
   var templates = new TemplateRegistry(
     {
@@ -46,7 +46,7 @@ locating templates, you'll need to define your own locator, like so:
 You can define your own filters, to go with the couple of sample ones already
 bundled in:
 
-```javascript
+```html
 <script>
   var templates = new TemplateRegistry(
     {
@@ -81,7 +81,7 @@ Templates are rendered asynchronously. You can pass variables into the
 template, which can be accessed using the `{{ varname }}` notation depicted
 above.
 
-```javascript
+```html
 <script>
   $(document).ready(
     function() {
@@ -102,7 +102,7 @@ above.
 
 A shortcut to the same end, without jQuery:
 
-```javascript
+```html
 <script>
   // Render the template to a div with an ID of 'mainDiv'
   templates.get('mytemplate').renderTo(
