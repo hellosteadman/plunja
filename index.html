@@ -2,11 +2,11 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>Plunja.js</title>
+		<title>Plunja demo</title>
 		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-		<script src="//raw.github.com/iamsteadman/plunja/master/js/plunja.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<script src="js/plunja.js"></script>
 		<style>
 			#sidebar.affix {
 				width: 100%;
@@ -23,7 +23,7 @@
 	<body>
 		<div class="container">
 			<div class="page-header">
-				<h1>Plunja.js</h1>
+				<h1>Plunja.js demo</h1>
 			</div>
 			
 			<div class="row">
@@ -217,13 +217,13 @@
 							<h3>The registry and events</h3>
 							<p>
 								Templates are stored as objects and placed inside a registry, so each time you access the same
-								template, you&rsquo;re accessing a single object instance per template.
+								template, you&rsquo;re accessing a single object instance.
 							</p>
 							
 							<p>
 								Call <code>templates.get()</code> with the name of the template, and you&rsquo;ll get a <code>Template</code>
 								object back. Call <code>template.on('render', function(html) {... })</code> to attach to the
-								<code>render</code> method if you want to perform any dynamic actions once rendering has taken place.
+								<code>render</code> event if you want to perform any dynamic actions once rendering has taken place.
 							</p>
 						</div>
 					</div>
