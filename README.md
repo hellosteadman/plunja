@@ -1,4 +1,4 @@
-# Plunja.js demo
+# Plunja.js
 
 Plunja is a simple JavaScript templating system that takes blocks of HTML
 stored in `<script>` tags and renders them with context objects. It was
@@ -7,26 +7,6 @@ inspired by [Jinja2][1].
 You don't need a JavaScript framework to use it, as you can define your own
 custom locator (ie: a way of finding the template from the DOM). The built-in
 locator uses jQuery, but it's really simple to define your own.
-
-Made by [Steadman][2]
-
-### Basic template
-
-    <p>Hello. This is a basic template. You can click the button below to copy me as much as you like.</p>
-
-Duplicate the text above
-
-### Context variables
-
-    <p>The current time is <strong>{{ time }}</strong>.</p>
-
-Duplicate the text above
-
-### Filters
-
-    <p>The current weekday is <strong>{{ weekday|uppercase }}</strong>.</p>
-
-Duplicate the text above
 
 ### Usage
 
@@ -77,4 +57,3 @@ bundled in:
     </script>
 
    [1]: http://jinja.pocoo.org/docs/
-   [2]: http://steadman.io/
