@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Plunja demo</title>
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<script src="js/plunja.js"></script>
+		<style>
+			#sidebar.affix {
+				width: 100%;
+				top: 15px;
+			}
+			
+			#sidebar.affix-top {
+				width: 100%;
+				top: 0;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Plunja.js demo</h1>
+			</div>
+			
+			<div class="row">
+				<div class="col-sm-4">
+					<div style="position: absolute;">
+						<div data-spy="affix" data-offset-top="100" id="sidebar">
+							<p>
+								Plunja is a simple JavaScript templating system that takes blocks of HTML stored in <code>&lt;script&gt;</code> tags
+								and renders them with context objects. It was inspired by <a href="http://jinja.pocoo.org/docs/">Jinja2</a>.
+							</p>
+							
+							<p>
+								You don&rsquo;t need a JavaScript framework to use it, as you can define your own custom locator (ie: a way of
+								finding the template from the DOM). The built-in locator uses jQuery, but it&rsquo;s really simple to
+								define your own.
+							</p>
+							
+							<p><small>Made by <a href="http://steadman.io/">Steadman</a></small></p>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-sm-8">
+					<div class="panel panel-info" id="basic-demo">
+						<div class="panel-heading">
+							<h3 class="panel-title">Basic template</h3>
+						</div>
+						
+						<div class="panel-body">
+							<pre>&lt;p&gt;Hello. This is a basic template. You can click the button below to copy me as much as you like.&lt;/p&gt;</pre>
+
+							<script type="text/html" data-template="basic">
+								<p>Hello. This is a basic template. You can click the button below to copy me as much as you like.</p>
+							</script>
+						</div>
+						
+						<div class="panel-footer">
+							<button class="btn btn-primary">Duplicate the text above</button>
+						</div>
+					</div>
+					
+					<div class="panel panel-info" id="context-demo">
+						<div class="panel-heading">
+							<h3 class="panel-title">Context variables</h3>
+						</div>
+						
+						<div class="panel-body">
+							<pre>&lt;p&gt;The current time is &lt;strong&gt;{{ time }}&lt;/strong&gt;.&lt;/p&gt;</pre>
+							
+							<script type="text/html" data-template="context">
+								<p>The current time is <strong>{{ time }}</strong>.
+							</script>
+						</div>
+						
+						<div class="panel-footer">
+							<button class="btn btn-primary">Duplicate the text above</button>
+						</div>
+					</div>
+					
+					<div class="panel panel-info" id="filters-demo">
+						<div class="panel-heading">
+							<h3 class="panel-title">Filters</h3>
+						</div>
+
+						<div class="panel-body">
+							<pre>&lt;p&gt;The current weekday is &lt;strong&gt;{{ weekday|uppercase }}&lt;/strong&gt;.&lt;/p&gt;</pre>
+
+							<script type="text/html" data-template="filters">
+								<p>The current weekday is <strong>{{ weekday|uppercase }}</strong>.
+							</script>
+						</div>
+
+						<div class="panel-footer">
+							<button class="btn btn-primary">Duplicate the text above</button>
+						</div>
+					</div>
+					
+					<div class="panel panel-default" id="usage">
+						<div class="panel-heading">
+							<h3 class="panel-title">Usage</h3>
+						</div>
+						
+						<div class="panel-body">
+							<p>You can use it with jQuery out-of-the-box, by including jQuery and the plunja.js file.</p>
+							<p>You start by creating a template registry which you&rsquo;ll then use to locate and render your templates.</p>
+							
+							<pre>
+&lt;script&gt;
+  $(document).ready(
+    function() {
+      var templates = new TemplateRegistry();
+    }
+  );
+&lt;/script&gt;
+</pre>
+							
+							<p>If you want to use Plunja.js without jQuery, or you have a better method for locating templates, you&rsquo;ll need to define your own locator, like so:</p>
+							
+							<pre>
+&lt;script&gt;
+  var templates = new TemplateRegistry(
+    {
+      locator: function(name) {
+          return document.getElementById('template-' + name).innerHTML;
+      }
+    }
+  );
+&lt;/script&gt;
+</pre>
+							
+							<p>You can define your own filters, to go with the couple of sample ones already bundled in:</p>
+							
+							<pre>
+&lt;script&gt;
+  var templates = new TemplateRegistry(
+    {
+      filters: {
+        reversed: function(value) {
+          var ret = '';
+          
+          for(var i = 0; i &lt; value.length; i ++) {
+            ret = value[i] + ret;
+          }
+          
+          return ret;
+        }
+      }
+    }
+  );
+&lt;/script&gt;
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script>
+			$(document).ready(
+				function() {
+					var templates = new TemplateRegistry();
+					
+					$('#basic-demo .btn').on('click',
+						function() {
+							var panel = $(this).closest('.panel');
+							var template = 'basic';
+							
+							panel.find('.panel-body').append(
+								templates.get(template).render()
+							);
+							
+							panel.removeClass('panel-info').addClass('panel-success');
+						}
+					);
+					
+					$('#context-demo .btn').on('click',
+						function() {
+							var panel = $(this).closest('.panel');
+							var template = 'context';
+							var now = new Date();
+							
+							panel.find('.panel-body').append(
+								templates.get(template).render(
+									{
+										time: now.toString()
+									}
+								)
+							);
+							
+							panel.removeClass('panel-info').addClass('panel-success');
+						}
+					);
+					
+					$('#filters-demo .btn').on('click',
+						function() {
+							var panel = $(this).closest('.panel');
+							var template = 'filters';
+							var now = new Date();
+							
+							panel.find('.panel-body').append(
+								templates.get(template).render(
+									{
+										weekday: now.toString().split(' ')[0]
+									}
+								)
+							);
+							
+							panel.removeClass('panel-info').addClass('panel-success');
+						}
+					);
+				}
+			);
+		</script>
+	</body>
+</html>
