@@ -49,7 +49,7 @@
 				<div class="col-sm-8">
 					<div class="panel panel-info" id="basic-demo">
 						<div class="panel-heading">
-							<h3 class="panel-title">Basic template</h3>
+							<h2 class="panel-title">Basic template</h2>
 						</div>
 						
 						<div class="panel-body">
@@ -61,13 +61,13 @@
 						</div>
 						
 						<div class="panel-footer">
-							<button class="btn btn-primary">Duplicate the text above</button>
+							<button class="btn btn-primary">Render the text above</button>
 						</div>
 					</div>
 					
 					<div class="panel panel-info" id="context-demo">
 						<div class="panel-heading">
-							<h3 class="panel-title">Context variables</h3>
+							<h2 class="panel-title">Context variables</h2>
 						</div>
 						
 						<div class="panel-body">
@@ -79,15 +79,15 @@
 						</div>
 						
 						<div class="panel-footer">
-							<button class="btn btn-primary">Duplicate the text above</button>
+							<button class="btn btn-primary">Render the text above</button>
 						</div>
 					</div>
 					
 					<div class="panel panel-info" id="filters-demo">
 						<div class="panel-heading">
-							<h3 class="panel-title">Filters</h3>
+							<h2 class="panel-title">Filters</h2>
 						</div>
-
+						
 						<div class="panel-body">
 							<pre>&lt;p&gt;The current weekday is &lt;strong&gt;{{ weekday|uppercase }}&lt;/strong&gt;.&lt;/p&gt;</pre>
 
@@ -95,20 +95,22 @@
 								<p>The current weekday is <strong>{{ weekday|uppercase }}</strong>.
 							</script>
 						</div>
-
+						
 						<div class="panel-footer">
-							<button class="btn btn-primary">Duplicate the text above</button>
+							<button class="btn btn-primary">Render the text above</button>
 						</div>
 					</div>
 					
 					<div class="panel panel-default" id="usage">
 						<div class="panel-heading">
-							<h3 class="panel-title">Usage</h3>
+							<h2 class="panel-title">Usage</h2>
 						</div>
 						
 						<div class="panel-body">
 							<p>You can use it with jQuery out-of-the-box, by including jQuery and the plunja.js file.</p>
-							<p>You start by creating a template registry which you&rsquo;ll then use to locate and render your templates.</p>
+							
+							<h3>Initialising Plunja.js</h3>
+							<p>Start by creating a template registry which you&rsquo;ll then use to locate and render your templates.</p>
 							
 							<pre>
 &lt;script&gt;
@@ -126,8 +128,8 @@
 &lt;script&gt;
   var templates = new TemplateRegistry(
     {
-      locator: function(name) {
-          return document.getElementById('template-' + name).innerHTML;
+      locator: function(name, callback) {
+          callback(document.getElementById('template-' + name).innerHTML);
       }
     }
   );
@@ -155,6 +157,74 @@
   );
 &lt;/script&gt;
 </pre>
+
+							<h3>Defining templates</h3>
+							<p>By default, templates are stored in <code>&lt;script&gt;</code> tags, with a <code>data-template</code> attribute used to identify the template by name.</p>
+							
+							<pre>
+&lt;script type="text/html" data-template="mytemplate"&gt;
+  This is some text. This is a {{ var }}.
+&lt;/script&gt;
+</pre>
+							
+							<h3>Rendering the template</h3>
+							<p>Templates are rendered asynchronously. You can pass variables into the template, which can be accessed using the <code>{{ varname }}</code> notation depicted above.</p>
+							<pre>
+&lt;script&gt;
+  $(document).ready(
+    function() {
+      templates.get('mytemplate').on('render',
+        function(html) {
+          // Populate the div on the page with content from the rendered template
+          $('div').html(html);
+        }
+      ).render(
+        {
+          var: 'variable'
+        }
+      );
+    }
+  );
+&lt;/script&gt;
+</pre>
+							<p>A shortcut to the same end, without jQuery:</p>
+							<pre>
+&lt;script&gt;
+  // Render the template to a div with an ID of 'mainDiv'
+  templates.get('mytemplate').renderTo(
+    document.getElementById('mainDiv'),
+    {
+      var: 'variable'
+    }
+  );
+&lt;/script&gt;
+</pre>
+							<p>Replace <code>renderTo</code> with <code>appendTo</code> to append content to the element, rather than replacing the HTML of the element.</p>
+							
+							<h3>Asynchronicity <small>(not a real word)</small></h3>
+							<p>
+								Because everything is asynchronous, you can define a template locator that uses AJAX. Your locator
+								function needs to accept two arguments: a string containing the template name, and a callback
+								argument.
+							</p>
+							
+							<p>
+								When obtaining a template from an AJAX request, you simply call the supplied callback function,
+								passing in the contents of the template, or <code>false</code> if the template couldn&rsquo;t be
+								found.
+							</p>
+							
+							<h3>The registry and events</h3>
+							<p>
+								Templates are stored as objects and placed inside a registry, so each time you access the same
+								template, you&rsquo;re accessing a single object instance per template.
+							</p>
+							
+							<p>
+								Call <code>templates.get()</code> with the name of the template, and you&rsquo;ll get a <code>Template</code>
+								object back. Call <code>template.on('render', function(html) {... })</code> to attach to the
+								<code>render</code> method if you want to perform any dynamic actions once rendering has taken place.
+							</p>
 						</div>
 					</div>
 				</div>
@@ -171,11 +241,13 @@
 							var panel = $(this).closest('.panel');
 							var template = 'basic';
 							
-							panel.find('.panel-body').append(
-								templates.get(template).render()
+							templates.get(template).on('render',
+								function(html) {
+									panel.removeClass('panel-info').addClass('panel-success');
+								}
+							).appendTo(
+								panel.find('.panel-body').get(0)
 							);
-							
-							panel.removeClass('panel-info').addClass('panel-success');
 						}
 					);
 					
@@ -185,15 +257,16 @@
 							var template = 'context';
 							var now = new Date();
 							
-							panel.find('.panel-body').append(
-								templates.get(template).render(
-									{
-										time: now.toString()
-									}
-								)
+							templates.get(template).on('render',
+								function(html) {
+									panel.removeClass('panel-info').addClass('panel-success');
+								}
+							).appendTo(
+								panel.find('.panel-body').get(0),
+								{
+									time: now.toString()
+								}
 							);
-							
-							panel.removeClass('panel-info').addClass('panel-success');
 						}
 					);
 					
@@ -203,15 +276,16 @@
 							var template = 'filters';
 							var now = new Date();
 							
-							panel.find('.panel-body').append(
-								templates.get(template).render(
-									{
-										weekday: now.toString().split(' ')[0]
-									}
-								)
+							templates.get(template).on('render',
+								function(html) {
+									panel.removeClass('panel-info').addClass('panel-success');
+								}
+							).appendTo(
+								panel.find('.panel-body').get(0),
+								{
+									weekday: now.toString().split(' ')[0]
+								}
 							);
-							
-							panel.removeClass('panel-info').addClass('panel-success');
 						}
 					);
 				}
