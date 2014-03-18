@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Plunja.js by iamsteadman</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Plunja.js</h1>
+        <p>A simple JavaScript templating system, inspired by Jinja2</p>
+
+        <p class="view"><a href="https://github.com/iamsteadman/plunja">View the Project on GitHub <small>iamsteadman/plunja</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/iamsteadman/plunja/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/iamsteadman/plunja/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/iamsteadman/plunja">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="plunjajs" class="anchor" href="#plunjajs"><span class="octicon octicon-link"></span></a>Plunja.js</h1>
+
+<p>Plunja is a simple JavaScript templating system that takes blocks of HTML
+stored in <code>&lt;script&gt;</code> tags and renders them with context objects. It was
+inspired by <a href="http://jinja.pocoo.org/docs/">Jinja2</a>.</p>
+
+<p>You don't need a JavaScript framework to use it, as you can define your own
+custom locator (ie: a way of finding the template from the DOM). The built-in
+locator uses jQuery, but it's really simple to define your own.</p>
+
+<h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<p>You can use it with jQuery out-of-the-box, by including jQuery and the
+plunja.js file.</p>
+
+<p>You start by creating a template registry which you'll then use to locate and
+render your templates.</p>
+
+<pre><code>&lt;script&gt;
+  $(document).ready(
+    function() {
+      var templates = new TemplateRegistry();
+    }
+  );
+&lt;/script&gt;
+</code></pre>
+
+<p>If you want to use Plunja.js without jQuery, or you have a better method for
+locating templates, you'll need to define your own locator, like so:</p>
+
+<pre><code>&lt;script&gt;
+  var templates = new TemplateRegistry(
+    {
+      locator: function(name) {
+          return document.getElementById('template-' + name).innerHTML;
+      }
+    }
+  );
+&lt;/script&gt;
+</code></pre>
+
+<p>You can define your own filters, to go with the couple of sample ones already
+bundled in:</p>
+
+<pre><code>&lt;script&gt;
+  var templates = new TemplateRegistry(
+    {
+      filters: {
+        reversed: function(value) {
+          var ret = '';
+          for(var i = 0; i &lt; value.length; i ++) {
+            ret = value[i] + ret;
+          }
+          return ret;
+        }
+      }
+    }
+  );
+&lt;/script&gt;
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/iamsteadman">iamsteadman</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
