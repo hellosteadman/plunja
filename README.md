@@ -130,12 +130,11 @@ template couldn't be found.
 ### The registry and events
 
 Templates are stored as objects and placed inside a registry, so each time you
-access the same template, you're accessing a single object instance per
-template.
+access the same template, you're accessing a single object instance.
 
 Call `templates.get()` with the name of the template, and you'll get a
 `Template` object back. Call `template.on('render', function(html) {... })` to
-attach to the `render` method if you want to perform any dynamic actions once
+attach to the `render` event if you want to perform any dynamic actions once
 rendering has taken place.
 
    [1]: http://jinja.pocoo.org/docs/
