@@ -217,13 +217,13 @@
 							<h3>The registry and events</h3>
 							<p>
 								Templates are stored as objects and placed inside a registry, so each time you access the same
-								template, you&rsquo;re accessing a single object instance per template.
+								template, you&rsquo;re accessing a single object instance.
 							</p>
 							
 							<p>
 								Call <code>templates.get()</code> with the name of the template, and you&rsquo;ll get a <code>Template</code>
 								object back. Call <code>template.on('render', function(html) {... })</code> to attach to the
-								<code>render</code> method if you want to perform any dynamic actions once rendering has taken place.
+								<code>render</code> event if you want to perform any dynamic actions once rendering has taken place.
 							</p>
 						</div>
 					</div>
