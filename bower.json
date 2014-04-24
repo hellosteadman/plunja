@@ -1,0 +1,26 @@
+{
+    "name": "Plunja.js",
+    "version": "0.1",
+    "homepage": "http://iamsteadman.github.io/plunja/",
+    "description": "A JavaScript templating framework",
+    "main": "js/plunjs.js",
+    "moduleType": [
+        "globals"
+    ],
+    "keywords": [
+        "templating",
+        "jquery",
+        "ajax"
+    ],
+    "authors": [
+        "Steadman"
+    ],
+    "license": "Apache",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ]
+}
