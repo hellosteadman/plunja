@@ -1,6 +1,6 @@
 {
     "name": "Plunja.js",
-    "version": "0.1",
+    "version": "0.2",
     "homepage": "http://iamsteadman.github.io/plunja/",
     "description": "A JavaScript templating framework",
     "main": "js/plunjs.js",

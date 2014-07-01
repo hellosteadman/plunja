@@ -1,7 +1,11 @@
+/*global escape: true */
+/*global console: true */
+/*exported TemplateRegistry */
+
 var TemplateRegistry = function(options) {
 	var defaults = {
 		locator: function(name, callback) {
-			if(typeof(jQuery) != 'undefined') {
+			if(typeof(jQuery) !== 'undefined') {
 				var element = jQuery('script[data-template="' + name + '"]');
 				if(element.length > 0) {
 					callback(element.html());
@@ -40,9 +44,11 @@ var TemplateRegistry = function(options) {
 
 					if(matches && matches.length > 2) {
 						replaceVar = matches[1];
-						findVar = Variable(matches[2], registry).resolve(context);
+						findVar = new Variable(
+							matches[2], registry
+						).resolve(context);
 
-						if(typeof(findVar) == 'undefined') {
+						if(typeof(findVar) === 'undefined') {
 							return '';
 						}
 
@@ -54,59 +60,72 @@ var TemplateRegistry = function(options) {
 
 							for(var i = 0; i < findVar.length; i++) {
 								newContext[replaceVar] = findVar[i];
-								clone.push(new Parser(newContext, registry).parse(element.toString()));
+								clone.push(
+									new Parser(
+										newContext, registry
+									).parse(
+										element.toString()
+									)
+								);
 							}
 						}
 
 						return clone.join('');
 					}
+
 					throw 'Syntax error in for tag';
 				}
 			}
 		}
+	};
+
+	function hash(str) {
+		var h = 0, chr;
+
+		if(str.length === 0) {
+			return h;
+		}
+
+		for(var i = 0, l = str.length; i < l; i++) {
+			chr = str.charCodeAt(i);
+			h = ((h << 5) - h) + chr;
+			h |= 0;
+		}
+
+		return h;
 	}
 
 	var self = {};
 	var registry = {};
 
-	for(var key in defaults) {
-		self[key] = defaults[key];
-	}
-
-	function hash(str) {
-		var hash = 0, i, chr;
-
-		if(str.length == 0) {
-			return hash;
+	(
+		function() {
+			for(var key in defaults) {
+				self[key] = defaults[key];
+			}
 		}
+	)();
 
-		for(i = 0, l = str.length; i < l; i++) {
-			chr = str.charCodeAt(i);
-			hash = ((hash << 5) - hash) + chr;
-			hash |= 0;
-		}
-
-		return hash;
-	};
-
-	if(typeof(options) == 'objects') {
+	if(typeof(options) === 'objects') {
 		for(var key in options) {
+			var f;
+
 			switch(key) {
 				case 'filters':
-					for(var f in options.filters) {
+					for(f in options.filters) {
 						self.filters[f] = options.filters[f];
 					}
 
 					break;
 				case 'tags':
-					for(var f in options.tags) {
+					for(f in options.tags) {
 						self.tags[f] = options.tags[f];
 					}
 
 					break;
 				default:
-					if(typeof(defaults[key]) == 'undefined') {
-						if(typeof(console) != 'undefined' && typeof(console.warn) != 'undefined') {
+					if(typeof(defaults[key]) === 'undefined') {
+						if(typeof(console) !== 'undefined' && typeof(console.warn) !== 'undefined') {
 							console.warn('Unrecognised TemplateRegistry option', key);
 							continue;
 						}
@@ -118,7 +137,7 @@ var TemplateRegistry = function(options) {
 	}
 
 	self.get = function(name) {
-		if(typeof(registry[name]) == 'undefined') {
+		if(typeof(registry[name]) === 'undefined') {
 			registry[name] = new Template(name, self);
 		}
 
@@ -131,7 +150,8 @@ var TemplateRegistry = function(options) {
 			resolve: function(context) {
 				var dot, dotted;
 				var pipe, filter, unfiltered, resolved, subcontext;
-				if(typeof(context) == 'undefined') {
+
+				if(typeof(context) === 'undefined') {
 					context = {};
 				}
 
@@ -139,22 +159,22 @@ var TemplateRegistry = function(options) {
 				if(dot > -1) {
 					dotted = name.substr(dot + 1);
 					subcontext = context[name.substr(0, dot)];
-					return Variable(dotted, registry).resolve(subcontext);
+					return new Variable(dotted, registry).resolve(subcontext);
 				}
 
 				pipe = name.indexOf('|');
 				if(pipe > -1) {
 					filter = registry.filters[name.substr(pipe + 1)];
-					if(typeof(filter) == 'undefined') {
+					if(typeof(filter) === 'undefined') {
 						throw 'Filter ' + name.substr(pipe + 1) + ' not found';
 					}
 
 					unfiltered = context[name.substr(0, pipe)];
-					if(typeof(unfiltered) != 'undefined') {
+					if(typeof(unfiltered) !== 'undefined') {
 						return filter(unfiltered);
 					}
 
-					if(typeof(console) != 'undefined' && typeof(console.warn) != 'undefined') {
+					if(typeof(console) !== 'undefined' && typeof(console.warn) !== 'undefined') {
 						console.warn('Variable', name, 'not found');
 					}
 
@@ -162,73 +182,77 @@ var TemplateRegistry = function(options) {
 				}
 
 				resolved = context[name];
-				if(typeof(resolved) != 'undefined') {
+				if(typeof(resolved) !== 'undefined') {
 					return resolved;
 				}
 
-				if(typeof(console) != 'undefined' && typeof(console.warn) != 'undefined') {
+				if(typeof(console) !== 'undefined' && typeof(console.warn) !== 'undefined') {
 					console.warn('Variable', name, 'not found');
 				}
 
 				return '';
 			}
-		}
+		};
 	}
 
 	function Template(name, registry) {
-		var element;
 		var _events = {};
 		var _self = {
-			render: function(context) {
+			render: function(context, createNode) {
 				_render(context,
-					function(html) {
-						_fire('render', html);
-					}
+					function(el) {
+						_fire('render', el);
+					},
+					createNode
 				);
 
 				return _self;
 			},
-			renderTo: function(obj, context) {
-				_render(context,
-					function(html) {
-						obj.innerHTML = html;
-						_fire('render', html);
-					}
+			renderTo: function(obj, context, createNode) {
+				_render(
+					context,
+					function(el) {
+						obj.replaceChild(el);
+						_fire('render', el);
+					},
+					createNode
 				);
 
 				return _self;
 			},
-			appendTo: function(obj, context) {
-				_render(context,
-					function(html) {
-						obj.innerHTML += html;
-						_fire('render', html);
-					}
+			appendTo: function(obj, context, createNode) {
+				_render
+					(context,
+					function(el) {
+						obj.appendChild(el);
+						_fire('render', el);
+					},
+					createNode
 				);
 
 				return _self;
 			},
 			on: function(evt, callback) {
-				if(typeof(_events[evt]) == 'undefined') {
+				if(typeof(_events[evt]) === 'undefined') {
 					_events[evt] = {};
 				}
 
 				var sig = hash(callback.toString());
-				if(typeof(_events[evt][sig]) == 'undefined') {
+				if(typeof(_events[evt][sig]) === 'undefined') {
 					_events[evt][sig] = callback;
 				}
 
 				return _self;
 			},
 			off: function(evt, callback) {
-				if(typeof(callback) == 'undefined') {
+				if(typeof(callback) === 'undefined') {
 					_events[evt] = {};
-				} else if(typeof(_events[evt]) != 'undefined') {
+				} else if(typeof(_events[evt]) !== 'undefined') {
 					var newList = {};
 					var sig = hash(callback.toString());
 
 					for(var key in _events[evt]) {
-						if(key != sig) {
+						if(key !== sig) {
 							newList[key] = _events[evt][key];
 						}
 					}
@@ -240,17 +264,39 @@ var TemplateRegistry = function(options) {
 			}
 		};
 
-		function _render(context, callback) {
+		function _render(context, callback, createNode) {
 			function r() {
-				callback(new Parser(context, registry).parse(_self._html.toString()));
+				callback(
+					createNode(
+						new Parser(
+							context, registry
+						).parse(
+							_self._html.toString()
+						)
+					)
+				);
 			}
 
-			if(typeof(_self._html) != 'undefined') {
+			if(typeof(createNode) !== 'function') {
+				createNode = function(html) {
+					var fragment = document.createDocumentFragment();
+					var container = document.createElement('div');
+
+					container.innerHTML = html;
+					while (container.firstChild) {
+						fragment.appendChild(container.firstChild);
+					}
+
+					return fragment;
+				};
+			}
+
+			if(typeof(_self._html) !== 'undefined') {
 				r();
 			} else {
 				self.locator(name,
 					function(html) {
-						if(typeof(html) == 'boolean' && !html) {
+						if(typeof(html) === 'boolean' && !html) {
 							throw 'Template ' + name + ' not found';
 						}
 
@@ -262,7 +308,7 @@ var TemplateRegistry = function(options) {
 		}
 
 		function _fire(evt, data) {
-			if(typeof(_events[evt]) != 'undefined') {
+			if(typeof(_events[evt]) !== 'undefined') {
 				for(var key in _events[evt]) {
 					_events[evt][key](data);
 				}
@@ -273,14 +319,14 @@ var TemplateRegistry = function(options) {
 	}
 
 	function Parser(context, registry) {
-		if(typeof(context) == 'undefined') {
+		if(typeof(context) === 'undefined') {
 			context = {};
 		}
 
 		return {
 			parse: function(html) {
-				var variableEx = new RegExp(/\{\{ ?([^{} ]+) ?\}\}/);
-				var tagsEx = new RegExp(/\{\% ?([^\% ]+)((?: )[^\%]+)? ?\%\}/);
+				var variableEx = new RegExp('\\{{2} ?([^\\{\\} ]+) ?\\}{2}');
+				var tagsEx = new RegExp('\\{% ?([^% ]+)((?: )[^%]+)? ?%\\}');
 				var matches = html.match(tagsEx);
 				var variables = {};
 				var tag, params, endTagEx, endMatches, lastEndMatch, variable, value;
@@ -291,14 +337,15 @@ var TemplateRegistry = function(options) {
 					params = matches[2];
 					tag = registry.tags[tag];
 
-					if(typeof(tag) == 'undefined') {
+					if(typeof(tag) === 'undefined') {
 						throw 'Tag ' + matches[1] + ' not found';
 					}
 
-					if(typeof(tag.endtag) != 'undefined') {
-						endTagEx = new RegExp('(\{\% ?' + tag.endtag + ' ?\%\}).*');
+					if(typeof(tag.endtag) !== 'undefined') {
+						endTagEx = new RegExp('(\\{% ?' + tag.endtag + ' ?%\\}).*');
 						endMatches = html.match(endTagEx);
-						if(!endMatches || endMatches.length == 0) {
+
+						if(!endMatches || endMatches.length === 0) {
 							throw 'Tag ' + matches[1] + ' found, but no ' + tag.endtag + ' found';
 						}
 
@@ -307,7 +354,11 @@ var TemplateRegistry = function(options) {
 							startIndex = html.indexOf(matches[0]) + matches[0].length;
 							endIndex = html.lastIndexOf(lastEndMatch) - startIndex;
 							midHTML = html.substr(startIndex, endIndex);
-							html = html.replace(matches[0] + midHTML + lastEndMatch, tag.handler(registry, context, params, midHTML))
+							html = html.replace(
+								matches[0] + midHTML + lastEndMatch,
+								tag.handler(registry, context, params, midHTML)
+							);
+
 							break;
 						}
 					} else {
@@ -316,11 +367,12 @@ var TemplateRegistry = function(options) {
 
 					break;
 				}
+
 				matches = html.match(variableEx);
 				while (matches && matches.length > 1) {
 					variable = matches[1];
-					if(typeof(variables[variable]) == 'undefined') {
-						variables[variable] = Variable(variable, registry);
+					if(typeof(variables[variable]) === 'undefined') {
+						variables[variable] = new Variable(variable, registry);
 					}
 
 					value = variables[variable].resolve(context);
@@ -330,7 +382,8 @@ var TemplateRegistry = function(options) {
 
 				return html;
 			}
-		}
+		};
 	}
+
 	return self;
-}
+};
